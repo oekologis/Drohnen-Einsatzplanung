@@ -2,7 +2,7 @@
 <html lang="de">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>Drohnen-Kalender</title>
 <style>
   :root {
@@ -16,192 +16,102 @@
     --blue: #185FA5; --radius: 8px; --radius-lg: 12px;
   }
 
-  /* Force light mode regardless of OS setting */
-  html { background: #f8f8f6; }
-  * { color-scheme: light only; }
+  html { background: #f8f8f6; -webkit-tap-highlight-color: transparent; }
+  * { color-scheme: light only; box-sizing: border-box; margin: 0; padding: 0; }
 
-  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
   body {
     font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
     background: var(--bg) !important; color: var(--text) !important;
     min-height: 100vh; padding: 12px 10px;
-    -webkit-text-size-adjust: 100%;
   }
-  .app { max-width: 720px; margin: 0 auto; }
-  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
-  h1 { font-size: 15px; font-weight: 600; letter-spacing: -0.3px; color: var(--text); }
-  .status { font-size: 11px; color: var(--text-faint); margin-top: 1px; }
+
+  .app { max-width: 1000px; margin: 0 auto; }
+
+  header { display: flex; align-items: center; justify-content: space-between; margin-bottom: 15px; }
+  h1 { font-size: 18px; font-weight: 700; color: var(--text); }
+  .status { font-size: 11px; color: var(--text-faint); }
   .status.ok { color: #1D9E75; } .status.err { color: #D85A30; }
-  .legend { display: flex; gap: 10px; margin-bottom: 8px; flex-wrap: wrap; }
-  .leg { display: flex; align-items: center; gap: 5px; font-size: 11px; color: var(--text-muted); }
-  .leg-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .nav { display: flex; align-items: center; gap: 8px; margin-bottom: 7px; }
+
+  .legend { display: flex; gap: 15px; margin-bottom: 15px; flex-wrap: wrap; }
+  .leg { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: 700; color: var(--text); }
+  .leg-dot { width: 10px; height: 10px; border-radius: 50%; }
+
+  .nav { display: flex; align-items: center; gap: 8px; margin-bottom: 10px; }
   .nav button {
-    background: var(--surface) !important; border: 0.5px solid var(--border-strong);
-    border-radius: var(--radius); padding: 5px 10px; font-size: 13px;
-    cursor: pointer; color: var(--text) !important;
+    background: var(--surface); border: 0.5px solid var(--border-strong);
+    border-radius: var(--radius); padding: 8px 14px; font-size: 14px; cursor: pointer;
   }
-  .week-label { flex: 1; text-align: center; font-size: 13px; font-weight: 500; color: var(--text); }
-  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 3px; }
-  .day-head {
-    font-size: 10px; color: var(--text-faint); text-align: center;
-    padding: 3px 0 4px; font-weight: 500; letter-spacing: 0.2px;
-  }
+  .week-label { flex: 1; text-align: center; font-size: 15px; font-weight: 700; }
+
+  .cal-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 4px; }
+  .day-head { font-size: 11px; color: var(--text-faint); text-align: center; padding-bottom: 5px; font-weight: 700; text-transform: uppercase; }
+  
   .day-cell {
     background: var(--surface) !important; border: 0.5px solid var(--border);
-    border-radius: 6px; padding: 4px 3px;
-    cursor: pointer; transition: border-color .15s;
+    border-radius: 8px; padding: 6px; min-height: 95px; cursor: pointer;
+    transition: transform 0.1s; position: relative;
   }
-  .day-cell:hover { border-color: var(--border-strong); }
-  .day-cell.today { border-color: var(--blue); }
-  .day-cell.past { opacity: 0.45; }
-  .dnum { font-size: 11px; font-weight: 500; color: var(--text-muted); margin-bottom: 2px; }
+  .day-cell .booking { pointer-events: none; }
+  .day-cell .dots-row { pointer-events: none; }
+  .day-cell .dnum { pointer-events: none; }
+
+  .day-cell:active { transform: scale(0.98); }
+  .day-cell.today { border-color: var(--blue); border-width: 2px; }
+  .day-cell.past { opacity: 0.55; }
+  .dnum { font-size: 13px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; }
   .today .dnum { color: var(--blue); }
 
-  /* Desktop/landscape: text bookings */
   .booking {
-    border-radius: 4px; padding: 2px 4px; font-size: 9px; font-weight: 600;
-    margin-bottom: 2px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
-    cursor: pointer; display: flex; align-items: center; gap: 2px; line-height: 1.3;
+    border-radius: 4px; padding: 3px 5px; font-size: 10px; font-weight: 700;
+    margin-bottom: 3px; display: flex; align-items: center; gap: 4px;
+    white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
   }
-  .booking:active { opacity: 0.7; }
-  .booking-dot { width: 4px; height: 4px; border-radius: 50%; flex-shrink: 0; }
+  .booking-dot { width: 5px; height: 5px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Portrait mobile: dots only */
-  .booking-compact {
-    display: none;
-    width: 7px; height: 7px; border-radius: 50%;
-    margin-bottom: 2px; cursor: pointer; flex-shrink: 0;
-  }
-  .dots-row { display: none; flex-direction: column; gap: 2px; margin-top: 2px; align-items: flex-start; }
+  .dots-row { display: none; flex-direction: column; gap: 3px; margin-top: 2px; }
+  .booking-compact { display: flex; align-items: center; gap: 4px; font-size: 10px; font-weight: 700; }
+  .compact-dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
 
-  /* Modal - positioned higher, not bottom */
-  .overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45); z-index: 100;
-    align-items: center; justify-content: center;
-    padding: 20px;
+  /* Modals */
+  .overlay, .day-overlay, .del-overlay {
+    display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.5);
+    z-index: 1000; align-items: center; justify-content: center; padding: 20px;
   }
-  .overlay.open { display: flex; }
-  .modal {
-    background: var(--surface) !important;
-    border-radius: 16px;
-    border: 0.5px solid var(--border-strong);
-    padding: 20px 20px 24px;
-    width: 100%; max-width: 400px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
+  .overlay.open, .day-overlay.open, .del-overlay.open { display: flex; }
+  .modal, .day-modal, .del-modal {
+    background: var(--surface); border-radius: 16px; padding: 20px;
+    width: 100%; max-width: 400px; box-shadow: 0 10px 40px rgba(0,0,0,0.3);
   }
-  .modal-handle { display: none; }
-  .modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 16px; color: var(--text); }
-  .field { margin-bottom: 12px; }
-  .field label {
-    display: block; font-size: 11px; font-weight: 500;
-    color: var(--text-muted); text-transform: uppercase;
-    letter-spacing: 0.5px; margin-bottom: 5px;
-  }
+
+  .field { margin-bottom: 15px; }
+  .field label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 5px; text-transform: uppercase; }
   .field select, .field input {
-    width: 100%; padding: 10px 12px; font-size: 15px;
-    border: 0.5px solid var(--border-strong); border-radius: var(--radius);
-    background: var(--bg) !important; color: var(--text) !important;
-    outline: none; -webkit-appearance: none; appearance: none;
+    width: 100%; padding: 12px; font-size: 16px; border: 1px solid var(--border-strong);
+    border-radius: var(--radius); background: var(--bg); color: var(--text); outline: none;
+    -webkit-appearance: none;
   }
-  .field select option:disabled { color: var(--text-faint); }
-  .field select option { color: var(--text); }
-  .field select {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8' viewBox='0 0 12 8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%236b6b67' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E") !important;
-    background-repeat: no-repeat !important; background-position: right 12px center !important; padding-right: 32px;
-  }
+  
+  select option:disabled { color: var(--text-faint); font-style: normal; }
+
   .preview {
-    border-radius: var(--radius); padding: 10px 12px; font-size: 13px; font-weight: 500;
-    display: flex; flex-direction: row; align-items: center; gap: 6px;
-    background: var(--bg) !important; color: var(--text-faint);
-    border: 0.5px solid var(--border); margin-bottom: 14px; min-height: 40px;
+    border-radius: var(--radius); padding: 12px; font-size: 14px; font-weight: 700;
+    display: flex; align-items: center; gap: 8px; background: var(--bg); margin-bottom: 15px;
   }
-  .preview-dot { width: 8px; height: 8px; border-radius: 50%; display: none; flex-shrink: 0; }
-  .btn-row { display: flex; gap: 8px; }
-  .btn {
-    flex: 1; padding: 12px; font-size: 15px; border-radius: var(--radius);
-    cursor: pointer; border: 0.5px solid var(--border-strong);
-    background: var(--bg) !important; color: var(--text) !important; font-weight: 500;
-  }
+  .preview-dot { width: 10px; height: 10px; border-radius: 50%; display: none; }
+
+  .btn-row { display: flex; gap: 10px; }
+  .btn { flex: 1; padding: 14px; font-size: 15px; border-radius: var(--radius); cursor: pointer; border: 1px solid var(--border-strong); font-weight: 700; }
   .btn-primary { background: var(--blue) !important; color: #fff !important; border-color: var(--blue); }
-  .btn-primary:disabled { opacity: 0.4; cursor: not-allowed; }
-  .spinner {
-    width: 14px; height: 14px; border: 2px solid rgba(255,255,255,0.3);
-    border-top-color: #fff; border-radius: 50%; display: none;
-    animation: spin .6s linear infinite;
-  }
-  @keyframes spin { to { transform: rotate(360deg); } }
 
-  /* Delete modal - also centered */
-  .del-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45); z-index: 200;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .del-overlay.open { display: flex; }
-  .del-modal {
-    background: var(--surface) !important;
-    border-radius: 16px;
-    border: 0.5px solid var(--border-strong);
-    padding: 20px 20px 24px;
-    width: 100%; max-width: 360px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-  }
-  .del-modal p { font-size: 14px; margin-bottom: 14px; color: var(--text) !important; font-weight: 500; }
-
-  /* Day detail modal */
-  .day-overlay {
-    display: none; position: fixed; inset: 0;
-    background: rgba(0,0,0,0.45); z-index: 150;
-    align-items: center; justify-content: center; padding: 20px;
-  }
-  .day-overlay.open { display: flex; }
-  .day-modal {
-    background: var(--surface) !important;
-    border-radius: 16px;
-    border: 0.5px solid var(--border-strong);
-    padding: 20px 20px 20px;
-    width: 100%; max-width: 380px;
-    box-shadow: 0 8px 40px rgba(0,0,0,0.18);
-  }
-  .day-modal h2 { font-size: 15px; font-weight: 600; margin-bottom: 14px; color: var(--text); }
-  .day-entry {
-    display: flex; align-items: center; justify-content: space-between;
-    border-radius: 8px; padding: 9px 10px; margin-bottom: 6px;
-  }
-  .day-entry-left { display: flex; align-items: center; gap: 8px; }
-  .day-entry-dot { width: 8px; height: 8px; border-radius: 50%; flex-shrink: 0; }
-  .day-entry-text { font-size: 13px; font-weight: 600; }
-  .day-entry-del {
-    background: none; border: none; cursor: pointer;
-    color: var(--text-faint); font-size: 16px; padding: 2px 4px;
-    border-radius: 4px; line-height: 1;
-  }
-  .day-entry-del:active { background: rgba(0,0,0,0.06); }
-  .day-empty { font-size: 13px; color: var(--text-faint); margin-bottom: 12px; }
-  .day-modal-btns { display: flex; gap: 8px; margin-top: 14px; }
-
-  /* Portrait: compact dots view */
-  @media (max-width: 480px) and (orientation: portrait) {
-    body { padding: 10px 8px; }
+  @media (max-width: 500px) and (orientation: portrait) {
     .booking { display: none; }
     .dots-row { display: flex; }
-    .booking-compact { display: block; }
-    .day-cell { padding: 4px 3px; min-height: 52px; }
-    .dnum { font-size: 10px; }
-    .day-head { font-size: 9px; }
+    .day-cell { min-height: 75px; }
   }
-
-  /* Landscape: normal view fits fine */
-  @media (orientation: landscape) {
-    body { padding: 8px 10px; }
-    .cal-grid { gap: 3px; }
-  }
-
 </style>
 </head>
 <body>
+
 <div class="app">
   <header>
     <div>
@@ -209,71 +119,80 @@
       <div class="status" id="conn-status">Verbinde...</div>
     </div>
   </header>
+  
   <div class="legend">
     <div class="leg"><div class="leg-dot" style="background:var(--mavic-dot)"></div>Mavic 3T</div>
     <div class="leg"><div class="leg-dot" style="background:var(--matrice-dot)"></div>Matrice 4T (1)</div>
     <div class="leg"><div class="leg-dot" style="background:var(--matrice2-dot)"></div>Matrice 4T (2)</div>
   </div>
+
   <div class="nav">
-    <button onclick="changeWeek(-1)">&#8592;</button>
+    <button onclick="changeWeek(-1)">←</button>
     <span class="week-label" id="week-label"></span>
-    <button onclick="changeWeek(1)">&#8594;</button>
+    <button onclick="changeWeek(1)">→</button>
   </div>
+
   <div class="cal-grid" id="cal"></div>
 </div>
 
-<!-- Booking modal -->
+<div class="day-overlay" id="day-modal">
+  <div class="day-modal">
+    <h2 id="day-modal-title" style="margin-bottom:15px; font-size:16px;"></h2>
+    <div id="day-entries"></div>
+    <div class="btn-row" style="margin-top:15px;">
+      <button class="btn" onclick="closeDayModal()">Schließen</button>
+      <button class="btn btn-primary" id="modal-add-btn" onclick="openNewFromDay()">+ Buchen</button>
+    </div>
+  </div>
+</div>
+
 <div class="overlay" id="modal">
   <div class="modal">
-    <div class="modal-handle"></div>
-    <h2 id="modal-title"></h2>
+    <h2 id="new-booking-title" style="margin-bottom:15px; font-size:16px;">Neu buchen</h2>
     <div class="field">
       <label>Drohne</label>
       <select id="drone-sel" onchange="updatePreview()">
-        <option value="">— auswählen —</option>
+        <option value="">— Drohne wählen —</option>
         <option value="mavic">Mavic 3T</option>
         <option value="matrice">Matrice 4T (1)</option>
         <option value="matrice2">Matrice 4T (2)</option>
       </select>
     </div>
     <div class="field">
-      <label>Kürzel</label>
-      <input type="text" id="kuerzel" maxlength="16" oninput="updatePreview()">
+      <label>Einsatzgebiet</label>
+      <select id="area-sel" onchange="updatePreview()">
+        <option value="">— Gebiet auswählen —</option>
+        <option value="BL">Blockland (BL)</option>
+        <option value="SJL">St. Jürgensland (SJL)</option>
+        <option value="NVL">Niedervieland (NVL)</option>
+        <option value="KW">Kladdinger Wiesen (KW)</option>
+        <option value="WN">Wümmeniederung (WN)</option>
+        <option value="BW">Borgfelder Wümmewiesen (BW)</option>
+        <option value="Sonstiges">Sonstiges</option>
+      </select>
+    </div>
+    <div class="field">
+      <label>Dein Kürzel</label>
+      <input type="text" id="kuerzel" placeholder="z.B. AB" maxlength="10" oninput="updatePreview()">
     </div>
     <div class="preview" id="preview">
       <div class="preview-dot" id="preview-dot"></div>
-      <span id="preview-text">Vorschau erscheint hier</span>
+      <span id="preview-text">Vorschau</span>
     </div>
     <div class="btn-row">
       <button class="btn" onclick="closeModal()">Abbrechen</button>
-      <button class="btn btn-primary" id="save-btn" onclick="saveBooking()" disabled>
-        <span id="save-label">Speichern</span>
-        <div class="spinner" id="save-spin"></div>
-      </button>
+      <button class="btn btn-primary" id="save-btn" onclick="saveBooking()" disabled>Speichern</button>
     </div>
   </div>
 </div>
-
-<!-- Day detail modal (portrait) -->
-<div class="day-overlay" id="day-modal">
-  <div class="day-modal">
-    <h2 id="day-modal-title"></h2>
-    <div id="day-entries"></div>
-    <div class="day-modal-btns">
-      <button class="btn" onclick="closeDayModal()">Schließen</button>
-      <button class="btn btn-primary" onclick="openNewFromDay()">+ Buchen</button>
-    </div>
-  </div>
-</div>
-
-<!-- Delete modal -->
 
 <div class="del-overlay" id="del-modal">
   <div class="del-modal">
-    <p id="del-text"></p>
+    <h3 style="margin-bottom:8px; font-size:15px; color:#D85A30;">Eintrag löschen?</h3>
+    <p id="del-text" style="font-weight:700; margin-bottom:18px; font-size:14px; line-height:1.4;"></p>
     <div class="btn-row">
-      <button class="btn" onclick="closeDel()">Abbrechen</button>
-      <button class="btn" style="background:#D85A30!important;color:#fff!important;border-color:#D85A30" onclick="confirmDelete()">Löschen</button>
+      <button class="btn" onclick="closeDel()">Nein</button>
+      <button class="btn" style="background:#D85A30!important; color:#fff!important; border-color:#D85A30;" onclick="confirmDelete()">Löschen</button>
     </div>
   </div>
 </div>
@@ -283,12 +202,12 @@ const SUPABASE_URL = 'https://pquibqnvhkfdaklccbjc.supabase.co';
 const SUPABASE_KEY = 'sb_publishable_AntSEndT1JjZ1ZTCOoj5ng_5AJ98sWl';
 
 const DRONES = {
-  mavic:    { label: 'Mavic 3T',        short: 'Mavic',   bg: 'var(--mavic-bg)',    fg: 'var(--mavic-fg)',    dot: 'var(--mavic-dot)'    },
-  matrice:  { label: 'Matrice 4T (1)',   short: 'M4T (1)', bg: 'var(--matrice-bg)',  fg: 'var(--matrice-fg)',  dot: 'var(--matrice-dot)'  },
-  matrice2: { label: 'Matrice 4T (2)',   short: 'M4T (2)', bg: 'var(--matrice2-bg)', fg: 'var(--matrice2-fg)', dot: 'var(--matrice2-dot)' },
+  mavic:    { label: 'Mavic 3T',       bg: 'var(--mavic-bg)',    fg: 'var(--mavic-fg)',    dot: 'var(--mavic-dot)'    },
+  matrice:  { label: 'Matrice 4T (1)', bg: 'var(--matrice-bg)',  fg: 'var(--matrice-fg)',  dot: 'var(--matrice-dot)'  },
+  matrice2: { label: 'Matrice 4T (2)', bg: 'var(--matrice2-bg)', fg: 'var(--matrice2-fg)', dot: 'var(--matrice2-dot)' },
 };
 
-let weekOffset = 0, selectedDate = null, bookings = {}, deleteId = null;
+let weekOffset = 0, selectedDate = null, selectedDateLabel = "", bookings = {}, deleteId = null;
 
 async function sbFetch(path, opts = {}) {
   const res = await fetch(SUPABASE_URL + '/rest/v1/' + path, {
@@ -312,15 +231,18 @@ async function loadBookings() {
 }
 
 function getMonday(d) { const d2=new Date(d),day=d2.getDay()||7; d2.setDate(d2.getDate()-day+1); d2.setHours(0,0,0,0); return d2; }
-function dateKey(d) { return d.toISOString().slice(0,10); }
+function dateKey(d) {
+  const y = d.getFullYear();
+  const m = String(d.getMonth()+1).padStart(2,'0');
+  const day = String(d.getDate()).padStart(2,'0');
+  return `${y}-${m}-${day}`;
+}
 function fmt(d) { return d.toLocaleDateString('de-DE',{day:'2-digit',month:'2-digit'}); }
 
 async function changeWeek(n) { weekOffset += n; await refreshCal(); }
 
 async function refreshCal() {
-  document.getElementById('cal').innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:16px;font-size:12px;color:var(--text-faint)">Lädt...</div>';
-  try { await loadBookings(); setStatus('ok','Verbunden'); }
-  catch(e) { setStatus('err','Verbindungsfehler'); }
+  try { await loadBookings(); setStatus('ok','Verbunden'); } catch(e) { setStatus('err','Fehler'); }
   renderCal();
 }
 
@@ -329,31 +251,35 @@ function setStatus(t,m) { const el=document.getElementById('conn-status'); el.te
 function renderCal() {
   const today = new Date(); today.setHours(0,0,0,0);
   const base = getMonday(today); base.setDate(base.getDate() + weekOffset * 7);
-  const end = new Date(base); end.setDate(end.getDate()+6);
-  document.getElementById('week-label').textContent = fmt(base) + ' – ' + fmt(end);
+  document.getElementById('week-label').textContent = fmt(base) + ' – ' + fmt(new Date(base.getTime() + 6*86400000));
+  
   const days = ['Mo','Di','Mi','Do','Fr','Sa','So'];
   let html = days.map(d=>`<div class="day-head">${d}</div>`).join('');
+  
   for (let i=0; i<7; i++) {
     const d = new Date(base); d.setDate(d.getDate()+i);
     const key = dateKey(d);
+    const entries = bookings[key] || [];
     const isToday = d.getTime()===today.getTime();
     const isPast = d < today;
-    const label = d.toLocaleDateString('de-DE',{weekday:'short',day:'2-digit',month:'2-digit'});
-    const entries = bookings[key] || [];
 
-    // Normal bookings (landscape/desktop)
+    // Label VOR dem Template-String berechnen – verhindert Anführungszeichen-Konflikt im onclick
+    const dayLabel = d.toLocaleDateString('de-DE', {weekday:'long', day:'2-digit', month:'2-digit'});
+
     const bookingHtml = entries.map(b => {
       const dr = DRONES[b.drone]; if (!dr) return '';
-      return `<div class="booking" style="background:${dr.bg};color:${dr.fg}" onclick="event.stopPropagation();askDelete('${b.id}','${dr.label} · ${b.label}')"><div class="booking-dot" style="background:${dr.dot}"></div>${dr.short} · ${b.label}</div>`;
+      const locStr = b.location ? ` [${b.location}]` : '';
+      return `<div class="booking" style="background:${dr.bg};color:${dr.fg}">
+                <div class="booking-dot" style="background:${dr.dot}"></div>${dr.label} · ${b.label}${locStr}
+              </div>`;
     }).join('');
 
-    // Compact dots (portrait mobile) — tap opens day detail
     const dotsHtml = entries.map(b => {
       const dr = DRONES[b.drone]; if (!dr) return '';
-      return `<div class="booking-compact" style="background:${dr.dot}"></div>`;
+      return `<div class="booking-compact" style="color:${dr.dot}"><div class="compact-dot" style="background:${dr.dot}"></div>${b.label}</div>`;
     }).join('');
 
-    html += `<div class="day-cell${isToday?' today':''}${isPast?' past':''}" onclick="handleDayTap('${key}','${label}')">
+    html += `<div class="day-cell${isToday?' today':''}${isPast?' past':''}" onclick="openDayModal('${key}','${dayLabel}')">
       <div class="dnum">${d.getDate()}</div>
       ${bookingHtml}
       <div class="dots-row">${dotsHtml}</div>
@@ -362,145 +288,99 @@ function renderCal() {
   document.getElementById('cal').innerHTML = html;
 }
 
-function isPortrait() {
-  return window.matchMedia('(max-width: 480px) and (orientation: portrait)').matches;
-}
-
-function handleDayTap(key, label) {
-  if (isPortrait()) {
-    openDayModal(key, label);
-  } else {
-    openModal(key, label);
-  }
-}
-
-let dayModalKey = null, dayModalLabel = null;
-
 function openDayModal(key, label) {
-  dayModalKey = key; dayModalLabel = label;
+  selectedDate = key;
+  selectedDateLabel = label;
   document.getElementById('day-modal-title').textContent = label;
   const entries = bookings[key] || [];
   const container = document.getElementById('day-entries');
-  if (entries.length === 0) {
-    container.innerHTML = '<div class="day-empty">Keine Buchungen</div>';
-  } else {
-    container.innerHTML = entries.map(b => {
-      const dr = DRONES[b.drone]; if (!dr) return '';
-      return `<div class="day-entry" style="background:${dr.bg}">
-        <div class="day-entry-left">
-          <div class="day-entry-dot" style="background:${dr.dot}"></div>
-          <div class="day-entry-text" style="color:${dr.fg}">${dr.label} · ${b.label}</div>
-        </div>
-        <button class="day-entry-del" style="color:${dr.fg}" onclick="askDeleteFromDay('${b.id}','${dr.label} · ${b.label}')">✕</button>
-      </div>`;
-    }).join('');
-  }
+  
+  document.getElementById('modal-add-btn').style.display = (entries.length >= 3) ? 'none' : 'block';
+
+  container.innerHTML = entries.length ? entries.map(b => {
+    const dr = DRONES[b.drone];
+    if (!dr) return '';
+    const fullInfo = `${dr.label} · ${b.label}${b.location ? ' ['+b.location+']' : ''}`;
+    return `<div style="background:${dr.bg}; color:${dr.fg}; padding:10px; border-radius:8px; margin-bottom:6px; display:flex; align-items:center; justify-content:space-between;">
+              <span style="font-weight:700; font-size:13px;">${fullInfo}</span>
+              <button onclick="event.stopPropagation(); askDelete('${b.id}','${fullInfo}')" style="background:none; border:none; color:inherit; font-size:22px; cursor:pointer; padding: 0 5px;">✕</button>
+            </div>`;
+  }).join('') : '<div style="font-size:13px; color:var(--text-faint); text-align:center; padding:10px;">Noch keine Drohne gebucht</div>';
   document.getElementById('day-modal').classList.add('open');
 }
 
-function closeDayModal() {
-  document.getElementById('day-modal').classList.remove('open');
-  dayModalKey = null; dayModalLabel = null;
-}
-
 function openNewFromDay() {
-  const k = dayModalKey, l = dayModalLabel;
   closeDayModal();
-  openModal(k, l);
-}
-
-function askDeleteFromDay(id, label) {
-  closeDayModal();
-  askDelete(id, label);
-}
-
-function openModal(key, label) {
-  selectedDate = key;
-  document.getElementById('modal-title').textContent = label;
+  document.getElementById('new-booking-title').textContent = "Buchen: " + selectedDateLabel;
   document.getElementById('kuerzel').value = '';
-  document.getElementById('save-btn').disabled = true;
-  resetPreview();
+  document.getElementById('area-sel').value = '';
+  
+  const existing = (bookings[selectedDate] || []).map(b => b.drone);
+  const select = document.getElementById('drone-sel');
+  select.value = '';
 
-  // Disable already-booked drones for this day
-  const booked = new Set((bookings[key] || []).map(b => b.drone));
-  const sel = document.getElementById('drone-sel');
-  sel.value = '';
-  Array.from(sel.options).forEach(opt => {
-    if (!opt.value) return;
-    opt.disabled = booked.has(opt.value);
-    opt.textContent = DRONES[opt.value]
-      ? DRONES[opt.value].label + (booked.has(opt.value) ? ' — belegt' : '')
-      : opt.textContent;
+  Array.from(select.options).forEach(opt => {
+    if (opt.value === "") return;
+    if (existing.includes(opt.value)) {
+      opt.disabled = true;
+      opt.textContent = DRONES[opt.value].label + " — belegt";
+    } else {
+      opt.disabled = false;
+      opt.textContent = DRONES[opt.value].label;
+    }
   });
 
+  updatePreview();
   document.getElementById('modal').classList.add('open');
-}
-function closeModal() { document.getElementById('modal').classList.remove('open'); }
-
-function resetPreview() {
-  const p=document.getElementById('preview');
-  p.style.background=''; p.style.color='';
-  document.getElementById('preview-dot').style.display='none';
-  document.getElementById('preview-text').textContent='Vorschau erscheint hier';
 }
 
 function updatePreview() {
-  const sel = document.getElementById('drone-sel');
-  const drone = sel.value;
-  const selectedOpt = sel.options[sel.selectedIndex];
-  const k=document.getElementById('kuerzel').value.trim();
-  const p=document.getElementById('preview'), dot=document.getElementById('preview-dot'), btn=document.getElementById('save-btn');
-  if (drone && k && selectedOpt && !selectedOpt.disabled) {
-    const dr=DRONES[drone];
-    p.style.background=dr.bg; p.style.color=dr.fg;
-    dot.style.background=dr.dot; dot.style.display='block';
-    document.getElementById('preview-text').textContent = dr.short + ' · ' + k;
-    btn.disabled=false;
-  } else { resetPreview(); btn.disabled=true; }
+  const drone = document.getElementById('drone-sel').value;
+  const area = document.getElementById('area-sel').value;
+  const kuerzel = document.getElementById('kuerzel').value.trim();
+  const p = document.getElementById('preview'), dot = document.getElementById('preview-dot'), btn = document.getElementById('save-btn');
+  
+  if (drone && kuerzel) {
+    const dr = DRONES[drone];
+    p.style.background = dr.bg; p.style.color = dr.fg;
+    dot.style.background = dr.dot; dot.style.display = 'block';
+    document.getElementById('preview-text').textContent = `${dr.label} · ${kuerzel}${area ? ' ['+area+']' : ''}`;
+    btn.disabled = false;
+  } else {
+    p.style.background = ''; p.style.color = ''; dot.style.display = 'none';
+    document.getElementById('preview-text').textContent = 'Bitte Drohne & Kürzel eingeben';
+    btn.disabled = true;
+  }
 }
 
 async function saveBooking() {
-  const drone=document.getElementById('drone-sel').value;
-  const k=document.getElementById('kuerzel').value.trim();
-  if (!drone||!k) return;
-  document.getElementById('save-label').style.display='none';
-  document.getElementById('save-spin').style.display='block';
-  document.getElementById('save-btn').disabled=true;
+  const drone = document.getElementById('drone-sel').value;
+  const area = document.getElementById('area-sel').value;
+  const label = document.getElementById('kuerzel').value.trim();
+  document.getElementById('save-btn').disabled = true;
   try {
-    await sbFetch('bookings',{method:'POST',body:JSON.stringify({date:selectedDate,drone,label:k})});
+    await sbFetch('bookings', { method: 'POST', body: JSON.stringify({ date: selectedDate, drone, label, location: area }) });
     closeModal(); await refreshCal();
   } catch(e) { alert('Fehler beim Speichern.'); }
-  document.getElementById('save-label').style.display='';
-  document.getElementById('save-spin').style.display='none';
-  document.getElementById('save-btn').disabled=false;
+  document.getElementById('save-btn').disabled = false;
 }
 
-function askDelete(id, label) {
-  deleteId=id;
-  document.getElementById('del-text').textContent='"'+label+'" löschen?';
-  document.getElementById('del-modal').classList.add('open');
-}
-function closeDel() { document.getElementById('del-modal').classList.remove('open'); deleteId=null; }
-async function confirmDelete() {
-  if (!deleteId) return;
-  try { await sbFetch('bookings?id=eq.'+deleteId,{method:'DELETE'}); closeDel(); await refreshCal(); }
+function closeDayModal() { document.getElementById('day-modal').classList.remove('open'); }
+function closeModal() { document.getElementById('modal').classList.remove('open'); }
+function askDelete(id, fullString) { deleteId = id; document.getElementById('del-text').textContent = fullString; document.getElementById('del-modal').classList.add('open'); }
+function closeDel() { document.getElementById('del-modal').classList.remove('open'); }
+
+async function confirmDelete() { 
+  try { await sbFetch('bookings?id=eq.'+deleteId, {method:'DELETE'}); closeDel(); closeDayModal(); await refreshCal(); }
   catch(e) { alert('Fehler beim Löschen.'); }
 }
 
-document.getElementById('modal').addEventListener('click', e=>{ if(e.target===document.getElementById('modal')) closeModal(); });
-document.getElementById('del-modal').addEventListener('click', e=>{ if(e.target===document.getElementById('del-modal')) closeDel(); });
-document.getElementById('day-modal').addEventListener('click', e=>{ if(e.target===document.getElementById('day-modal')) closeDayModal(); });
-document.addEventListener('keydown', e=>{ if(e.key==='Escape'){closeModal();closeDel();closeDayModal();} });
-
-async function deleteOldBookings() {
-  const cutoff = new Date();
-  cutoff.setDate(cutoff.getDate() - 90);
-  try { await sbFetch('bookings?date=lt.' + dateKey(cutoff), { method: 'DELETE' }); }
-  catch(e) { /* silent */ }
-}
+document.getElementById('modal').addEventListener('click', e => { if (e.target === document.getElementById('modal')) closeModal(); });
+document.getElementById('del-modal').addEventListener('click', e => { if (e.target === document.getElementById('del-modal')) closeDel(); });
+document.getElementById('day-modal').addEventListener('click', e => { if (e.target === document.getElementById('day-modal')) closeDayModal(); });
+document.addEventListener('keydown', e => { if (e.key === 'Escape') { closeModal(); closeDel(); closeDayModal(); } });
 
 refreshCal();
-deleteOldBookings();
 </script>
 </body>
 </html>
